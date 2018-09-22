@@ -1,9 +1,9 @@
 CLEAN_FILES = # deliberately empty, so we can append below.
 CC=cc
 CXX=g++
-LDFLAGS= -lpthread -lrt -lprotobuf
+LDFLAGS= -lpthread -lrt
 CFLAGS= -fno-builtin-memcmp -msse -msse4.2
-CXXFLAGS= -std=c++11 -fno-builtin-memcmp -msse -msse4.2
+CXXFLAGS= -std=c++11 -static -fno-builtin-memcmp -msse -msse4.2 -I/opt/protobuf/include -L/opt/protobuf/lib
 PROFILING_FLAGS=-pg
 ARFLAGS = rs
 OPT=
@@ -53,10 +53,10 @@ PINK_LIBRARY=$(PINK_PATH)/pink/lib/libpink.a
 
 ifndef ROCKSDB_PATH
   $(warning Warning: rocksdb path missing, using default)
-  ROCKSDB_PATH=$(CURDIR)/third/rocksdb
+  ROCKSDB_PATH=/opt/rocksdb
 endif
 ROCKSDB_INCLUDE_DIR=$(ROCKSDB_PATH)/include
-ROCKSDB_LIBRARY=$(ROCKSDB_PATH)/librocksdb.a
+ROCKSDB_LIBRARY=$(ROCKSDB_PATH)/lib/librocksdb.a
 
 AM_DEFAULT_VERBOSITY = 0
 

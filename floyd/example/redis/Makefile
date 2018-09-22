@@ -21,17 +21,18 @@ PINK_LIBRARY=$(PINK_PATH)/pink/lib/libpink.a
 
 ifndef ROCKSDB_PATH
   $(warning Warning: rocksdb path missing, using default)
-  ROCKSDB_PATH=$(CURDIR)/../../third/rocksdb
+  ROCKSDB_PATH=/opt/rocksdb/
 endif
 ROCKSDB_INCLUDE_DIR=$(ROCKSDB_PATH)/include
-ROCKSDB_LIBRARY=$(ROCKSDB_PATH)/librocksdb.a
+ROCKSDB_LIBRARY=$(ROCKSDB_PATH)/lib/librocksdb.a
 
 FLOYD_LIBRARY=../../lib/libfloyd.a
 
 CXXFLAGS+=-I../../.. \
 					-I$(SLASH_INCLUDE_DIR) \
 					-I$(PINK_INCLUDE_DIR) \
-					-I$(ROCKSDB_INCLUDE_DIR)
+					-I$(ROCKSDB_INCLUDE_DIR) \
+					-I/opt/protobuf/include
 
 OBJECT = raftis
 SRC_DIR = ./
@@ -40,8 +41,9 @@ OUTPUT = ./output
 
 LIB_PATH = -L../../lib/ \
 			 -L$(SLASH_PATH)/slash/lib/ \
-			 -L$(ROCKSDB_PATH)/ \
-			 -L$(PINK_PATH)/pink/lib/
+			 -L$(ROCKSDB_PATH)/lib/ \
+			 -L$(PINK_PATH)/pink/lib/ \
+			 -L/opt/protobuf/lib
 
 
 LIBS = -lfloyd \
@@ -56,7 +58,7 @@ LIBS = -lfloyd \
 			 -lpthread
 
 INCLUDE_PATH = -I../../../ \
-							 -I$(THIRD_PATH)/rocksdb/include \
+							 -I$(ROCKSDB_INCLUDE_DIR) \
 							 -I$(THIRD_PATH)/slash/ \
 							 -I$(THIRD_PATH)/pink/
 
