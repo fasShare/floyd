@@ -32,7 +32,8 @@ CXXFLAGS+=-I../../.. \
 					-I$(SLASH_INCLUDE_DIR) \
 					-I$(PINK_INCLUDE_DIR) \
 					-I$(ROCKSDB_INCLUDE_DIR) \
-					-I/opt/protobuf/include
+					-I/opt/protobuf/include \
+					-I/$(THIRD_PATH)/
 
 OBJECT = raftis
 SRC_DIR = ./
@@ -43,13 +44,15 @@ LIB_PATH = -L../../lib/ \
 			 -L$(SLASH_PATH)/slash/lib/ \
 			 -L$(ROCKSDB_PATH)/lib/ \
 			 -L$(PINK_PATH)/pink/lib/ \
-			 -L/opt/protobuf/lib
+			 -L/opt/protobuf/lib \
+			 -L$(THIRD_PATH)/mcached/
 
 
 LIBS = -lfloyd \
 			 -lpink \
 			 -lslash \
 			 -lrocksdb \
+			 -lmcached \
 			 -lsnappy \
 			 -lprotobuf \
 			 -lz \

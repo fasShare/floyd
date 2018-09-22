@@ -39,7 +39,7 @@ namespace protobuf_floyd_2eproto {
 struct TableStruct {
   static const ::google::protobuf::internal::ParseTableField entries[];
   static const ::google::protobuf::internal::AuxillaryParseTableField aux[];
-  static const ::google::protobuf::internal::ParseTable schema[16];
+  static const ::google::protobuf::internal::ParseTable schema[18];
   static const ::google::protobuf::internal::FieldMetadata field_metadata[];
   static const ::google::protobuf::internal::SerializationTable serialization_table[];
   static const ::google::protobuf::uint32 offsets[];
@@ -62,6 +62,9 @@ extern CmdRequest_KvRequestDefaultTypeInternal _CmdRequest_KvRequest_default_ins
 class CmdRequest_LockRequest;
 class CmdRequest_LockRequestDefaultTypeInternal;
 extern CmdRequest_LockRequestDefaultTypeInternal _CmdRequest_LockRequest_default_instance_;
+class CmdRequest_McachedRequest;
+class CmdRequest_McachedRequestDefaultTypeInternal;
+extern CmdRequest_McachedRequestDefaultTypeInternal _CmdRequest_McachedRequest_default_instance_;
 class CmdRequest_RemoveServerRequest;
 class CmdRequest_RemoveServerRequestDefaultTypeInternal;
 extern CmdRequest_RemoveServerRequestDefaultTypeInternal _CmdRequest_RemoveServerRequest_default_instance_;
@@ -80,6 +83,9 @@ extern CmdResponse_AppendEntriesResponseDefaultTypeInternal _CmdResponse_AppendE
 class CmdResponse_KvResponse;
 class CmdResponse_KvResponseDefaultTypeInternal;
 extern CmdResponse_KvResponseDefaultTypeInternal _CmdResponse_KvResponse_default_instance_;
+class CmdResponse_McachedResponse;
+class CmdResponse_McachedResponseDefaultTypeInternal;
+extern CmdResponse_McachedResponseDefaultTypeInternal _CmdResponse_McachedResponse_default_instance_;
 class CmdResponse_RequestVoteResponse;
 class CmdResponse_RequestVoteResponseDefaultTypeInternal;
 extern CmdResponse_RequestVoteResponseDefaultTypeInternal _CmdResponse_RequestVoteResponse_default_instance_;
@@ -103,12 +109,14 @@ template<> ::floyd::CmdRequest_AddServerRequest* Arena::CreateMaybeMessage<::flo
 template<> ::floyd::CmdRequest_AppendEntries* Arena::CreateMaybeMessage<::floyd::CmdRequest_AppendEntries>(Arena*);
 template<> ::floyd::CmdRequest_KvRequest* Arena::CreateMaybeMessage<::floyd::CmdRequest_KvRequest>(Arena*);
 template<> ::floyd::CmdRequest_LockRequest* Arena::CreateMaybeMessage<::floyd::CmdRequest_LockRequest>(Arena*);
+template<> ::floyd::CmdRequest_McachedRequest* Arena::CreateMaybeMessage<::floyd::CmdRequest_McachedRequest>(Arena*);
 template<> ::floyd::CmdRequest_RemoveServerRequest* Arena::CreateMaybeMessage<::floyd::CmdRequest_RemoveServerRequest>(Arena*);
 template<> ::floyd::CmdRequest_RequestVote* Arena::CreateMaybeMessage<::floyd::CmdRequest_RequestVote>(Arena*);
 template<> ::floyd::CmdRequest_ServerStatus* Arena::CreateMaybeMessage<::floyd::CmdRequest_ServerStatus>(Arena*);
 template<> ::floyd::CmdResponse* Arena::CreateMaybeMessage<::floyd::CmdResponse>(Arena*);
 template<> ::floyd::CmdResponse_AppendEntriesResponse* Arena::CreateMaybeMessage<::floyd::CmdResponse_AppendEntriesResponse>(Arena*);
 template<> ::floyd::CmdResponse_KvResponse* Arena::CreateMaybeMessage<::floyd::CmdResponse_KvResponse>(Arena*);
+template<> ::floyd::CmdResponse_McachedResponse* Arena::CreateMaybeMessage<::floyd::CmdResponse_McachedResponse>(Arena*);
 template<> ::floyd::CmdResponse_RequestVoteResponse* Arena::CreateMaybeMessage<::floyd::CmdResponse_RequestVoteResponse>(Arena*);
 template<> ::floyd::CmdResponse_ServerStatus* Arena::CreateMaybeMessage<::floyd::CmdResponse_ServerStatus>(Arena*);
 template<> ::floyd::Entry* Arena::CreateMaybeMessage<::floyd::Entry>(Arena*);
@@ -126,11 +134,13 @@ enum Entry_OpType {
   Entry_OpType_kUnLock = 5,
   Entry_OpType_kAddServer = 6,
   Entry_OpType_kRemoveServer = 7,
-  Entry_OpType_kGetAllServers = 8
+  Entry_OpType_kGetAllServers = 8,
+  Entry_OpType_kMcachedWrite = 9,
+  Entry_OpType_kMcachedRead = 10
 };
 bool Entry_OpType_IsValid(int value);
 const Entry_OpType Entry_OpType_OpType_MIN = Entry_OpType_kRead;
-const Entry_OpType Entry_OpType_OpType_MAX = Entry_OpType_kGetAllServers;
+const Entry_OpType Entry_OpType_OpType_MAX = Entry_OpType_kMcachedRead;
 const int Entry_OpType_OpType_ARRAYSIZE = Entry_OpType_OpType_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* Entry_OpType_descriptor();
@@ -152,13 +162,15 @@ enum Type {
   kAddServer = 11,
   kRemoveServer = 12,
   kGetAllServers = 13,
+  kMcachedWrite = 14,
+  kMcachedRead = 15,
   kRequestVote = 8,
   kAppendEntries = 9,
   kServerStatus = 10
 };
 bool Type_IsValid(int value);
 const Type Type_MIN = kRead;
-const Type Type_MAX = kGetAllServers;
+const Type Type_MAX = kMcachedRead;
 const int Type_ARRAYSIZE = Type_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* Type_descriptor();
@@ -303,6 +315,10 @@ class Entry : public ::google::protobuf::Message /* @@protoc_insertion_point(cla
     Entry_OpType_kRemoveServer;
   static const OpType kGetAllServers =
     Entry_OpType_kGetAllServers;
+  static const OpType kMcachedWrite =
+    Entry_OpType_kMcachedWrite;
+  static const OpType kMcachedRead =
+    Entry_OpType_kMcachedRead;
   static inline bool OpType_IsValid(int value) {
     return Entry_OpType_IsValid(value);
   }
@@ -325,6 +341,28 @@ class Entry : public ::google::protobuf::Message /* @@protoc_insertion_point(cla
   }
 
   // accessors -------------------------------------------------------
+
+  // repeated bytes args = 8;
+  int args_size() const;
+  void clear_args();
+  static const int kArgsFieldNumber = 8;
+  const ::std::string& args(int index) const;
+  ::std::string* mutable_args(int index);
+  void set_args(int index, const ::std::string& value);
+  #if LANG_CXX11
+  void set_args(int index, ::std::string&& value);
+  #endif
+  void set_args(int index, const char* value);
+  void set_args(int index, const void* value, size_t size);
+  ::std::string* add_args();
+  void add_args(const ::std::string& value);
+  #if LANG_CXX11
+  void add_args(::std::string&& value);
+  #endif
+  void add_args(const char* value);
+  void add_args(const void* value, size_t size);
+  const ::google::protobuf::RepeatedPtrField< ::std::string>& args() const;
+  ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_args();
 
   // optional string key = 2;
   bool has_key() const;
@@ -427,6 +465,7 @@ class Entry : public ::google::protobuf::Message /* @@protoc_insertion_point(cla
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::internal::HasBits<1> _has_bits_;
   mutable ::google::protobuf::internal::CachedSize _cached_size_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> args_;
   ::google::protobuf::internal::ArenaStringPtr key_;
   ::google::protobuf::internal::ArenaStringPtr value_;
   ::google::protobuf::internal::ArenaStringPtr holder_;
@@ -1483,6 +1522,133 @@ class CmdRequest_ServerStatus : public ::google::protobuf::Message /* @@protoc_i
 };
 // -------------------------------------------------------------------
 
+class CmdRequest_McachedRequest : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:floyd.CmdRequest.McachedRequest) */ {
+ public:
+  CmdRequest_McachedRequest();
+  virtual ~CmdRequest_McachedRequest();
+
+  CmdRequest_McachedRequest(const CmdRequest_McachedRequest& from);
+
+  inline CmdRequest_McachedRequest& operator=(const CmdRequest_McachedRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  CmdRequest_McachedRequest(CmdRequest_McachedRequest&& from) noexcept
+    : CmdRequest_McachedRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline CmdRequest_McachedRequest& operator=(CmdRequest_McachedRequest&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _internal_metadata_.unknown_fields();
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return _internal_metadata_.mutable_unknown_fields();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const CmdRequest_McachedRequest& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const CmdRequest_McachedRequest* internal_default_instance() {
+    return reinterpret_cast<const CmdRequest_McachedRequest*>(
+               &_CmdRequest_McachedRequest_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    8;
+
+  void Swap(CmdRequest_McachedRequest* other);
+  friend void swap(CmdRequest_McachedRequest& a, CmdRequest_McachedRequest& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline CmdRequest_McachedRequest* New() const final {
+    return CreateMaybeMessage<CmdRequest_McachedRequest>(NULL);
+  }
+
+  CmdRequest_McachedRequest* New(::google::protobuf::Arena* arena) const final {
+    return CreateMaybeMessage<CmdRequest_McachedRequest>(arena);
+  }
+  void CopyFrom(const ::google::protobuf::Message& from) final;
+  void MergeFrom(const ::google::protobuf::Message& from) final;
+  void CopyFrom(const CmdRequest_McachedRequest& from);
+  void MergeFrom(const CmdRequest_McachedRequest& from);
+  void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) final;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const final;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(CmdRequest_McachedRequest* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated bytes args = 1;
+  int args_size() const;
+  void clear_args();
+  static const int kArgsFieldNumber = 1;
+  const ::std::string& args(int index) const;
+  ::std::string* mutable_args(int index);
+  void set_args(int index, const ::std::string& value);
+  #if LANG_CXX11
+  void set_args(int index, ::std::string&& value);
+  #endif
+  void set_args(int index, const char* value);
+  void set_args(int index, const void* value, size_t size);
+  ::std::string* add_args();
+  void add_args(const ::std::string& value);
+  #if LANG_CXX11
+  void add_args(::std::string&& value);
+  #endif
+  void add_args(const char* value);
+  void add_args(const void* value, size_t size);
+  const ::google::protobuf::RepeatedPtrField< ::std::string>& args() const;
+  ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_args();
+
+  // @@protoc_insertion_point(class_scope:floyd.CmdRequest.McachedRequest)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::HasBits<1> _has_bits_;
+  mutable ::google::protobuf::internal::CachedSize _cached_size_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> args_;
+  friend struct ::protobuf_floyd_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
 class CmdRequest : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:floyd.CmdRequest) */ {
  public:
   CmdRequest();
@@ -1525,7 +1691,7 @@ class CmdRequest : public ::google::protobuf::Message /* @@protoc_insertion_poin
                &_CmdRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    8;
+    9;
 
   void Swap(CmdRequest* other);
   friend void swap(CmdRequest& a, CmdRequest& b) {
@@ -1582,6 +1748,7 @@ class CmdRequest : public ::google::protobuf::Message /* @@protoc_insertion_poin
   typedef CmdRequest_AddServerRequest AddServerRequest;
   typedef CmdRequest_RemoveServerRequest RemoveServerRequest;
   typedef CmdRequest_ServerStatus ServerStatus;
+  typedef CmdRequest_McachedRequest McachedRequest;
 
   // accessors -------------------------------------------------------
 
@@ -1669,6 +1836,18 @@ class CmdRequest : public ::google::protobuf::Message /* @@protoc_insertion_poin
   ::floyd::CmdRequest_RemoveServerRequest* mutable_remove_server_request();
   void set_allocated_remove_server_request(::floyd::CmdRequest_RemoveServerRequest* remove_server_request);
 
+  // optional .floyd.CmdRequest.McachedRequest mcached_request = 9;
+  bool has_mcached_request() const;
+  void clear_mcached_request();
+  static const int kMcachedRequestFieldNumber = 9;
+  private:
+  const ::floyd::CmdRequest_McachedRequest& _internal_mcached_request() const;
+  public:
+  const ::floyd::CmdRequest_McachedRequest& mcached_request() const;
+  ::floyd::CmdRequest_McachedRequest* release_mcached_request();
+  ::floyd::CmdRequest_McachedRequest* mutable_mcached_request();
+  void set_allocated_mcached_request(::floyd::CmdRequest_McachedRequest* mcached_request);
+
   // required .floyd.Type type = 1;
   bool has_type() const;
   void clear_type();
@@ -1688,12 +1867,14 @@ class CmdRequest : public ::google::protobuf::Message /* @@protoc_insertion_poin
   void clear_has_kv_request();
   void set_has_lock_request();
   void clear_has_lock_request();
+  void set_has_server_status();
+  void clear_has_server_status();
   void set_has_add_server_request();
   void clear_has_add_server_request();
   void set_has_remove_server_request();
   void clear_has_remove_server_request();
-  void set_has_server_status();
-  void clear_has_server_status();
+  void set_has_mcached_request();
+  void clear_has_mcached_request();
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::internal::HasBits<1> _has_bits_;
@@ -1705,6 +1886,7 @@ class CmdRequest : public ::google::protobuf::Message /* @@protoc_insertion_poin
   ::floyd::CmdRequest_ServerStatus* server_status_;
   ::floyd::CmdRequest_AddServerRequest* add_server_request_;
   ::floyd::CmdRequest_RemoveServerRequest* remove_server_request_;
+  ::floyd::CmdRequest_McachedRequest* mcached_request_;
   int type_;
   friend struct ::protobuf_floyd_2eproto::TableStruct;
 };
@@ -1752,7 +1934,7 @@ class CmdResponse_RequestVoteResponse : public ::google::protobuf::Message /* @@
                &_CmdResponse_RequestVoteResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    9;
+    10;
 
   void Swap(CmdResponse_RequestVoteResponse* other);
   friend void swap(CmdResponse_RequestVoteResponse& a, CmdResponse_RequestVoteResponse& b) {
@@ -1879,7 +2061,7 @@ class CmdResponse_AppendEntriesResponse : public ::google::protobuf::Message /* 
                &_CmdResponse_AppendEntriesResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    10;
+    11;
 
   void Swap(CmdResponse_AppendEntriesResponse* other);
   friend void swap(CmdResponse_AppendEntriesResponse& a, CmdResponse_AppendEntriesResponse& b) {
@@ -2016,7 +2198,7 @@ class CmdResponse_KvResponse : public ::google::protobuf::Message /* @@protoc_in
                &_CmdResponse_KvResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    11;
+    12;
 
   void Swap(CmdResponse_KvResponse* other);
   friend void swap(CmdResponse_KvResponse& a, CmdResponse_KvResponse& b) {
@@ -2096,6 +2278,128 @@ class CmdResponse_KvResponse : public ::google::protobuf::Message /* @@protoc_in
 };
 // -------------------------------------------------------------------
 
+class CmdResponse_McachedResponse : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:floyd.CmdResponse.McachedResponse) */ {
+ public:
+  CmdResponse_McachedResponse();
+  virtual ~CmdResponse_McachedResponse();
+
+  CmdResponse_McachedResponse(const CmdResponse_McachedResponse& from);
+
+  inline CmdResponse_McachedResponse& operator=(const CmdResponse_McachedResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  CmdResponse_McachedResponse(CmdResponse_McachedResponse&& from) noexcept
+    : CmdResponse_McachedResponse() {
+    *this = ::std::move(from);
+  }
+
+  inline CmdResponse_McachedResponse& operator=(CmdResponse_McachedResponse&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _internal_metadata_.unknown_fields();
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return _internal_metadata_.mutable_unknown_fields();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const CmdResponse_McachedResponse& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const CmdResponse_McachedResponse* internal_default_instance() {
+    return reinterpret_cast<const CmdResponse_McachedResponse*>(
+               &_CmdResponse_McachedResponse_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    13;
+
+  void Swap(CmdResponse_McachedResponse* other);
+  friend void swap(CmdResponse_McachedResponse& a, CmdResponse_McachedResponse& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline CmdResponse_McachedResponse* New() const final {
+    return CreateMaybeMessage<CmdResponse_McachedResponse>(NULL);
+  }
+
+  CmdResponse_McachedResponse* New(::google::protobuf::Arena* arena) const final {
+    return CreateMaybeMessage<CmdResponse_McachedResponse>(arena);
+  }
+  void CopyFrom(const ::google::protobuf::Message& from) final;
+  void MergeFrom(const ::google::protobuf::Message& from) final;
+  void CopyFrom(const CmdResponse_McachedResponse& from);
+  void MergeFrom(const CmdResponse_McachedResponse& from);
+  void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) final;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const final;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(CmdResponse_McachedResponse* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional bytes value = 1;
+  bool has_value() const;
+  void clear_value();
+  static const int kValueFieldNumber = 1;
+  const ::std::string& value() const;
+  void set_value(const ::std::string& value);
+  #if LANG_CXX11
+  void set_value(::std::string&& value);
+  #endif
+  void set_value(const char* value);
+  void set_value(const void* value, size_t size);
+  ::std::string* mutable_value();
+  ::std::string* release_value();
+  void set_allocated_value(::std::string* value);
+
+  // @@protoc_insertion_point(class_scope:floyd.CmdResponse.McachedResponse)
+ private:
+  void set_has_value();
+  void clear_has_value();
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::HasBits<1> _has_bits_;
+  mutable ::google::protobuf::internal::CachedSize _cached_size_;
+  ::google::protobuf::internal::ArenaStringPtr value_;
+  friend struct ::protobuf_floyd_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
 class CmdResponse_ServerStatus : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:floyd.CmdResponse.ServerStatus) */ {
  public:
   CmdResponse_ServerStatus();
@@ -2138,7 +2442,7 @@ class CmdResponse_ServerStatus : public ::google::protobuf::Message /* @@protoc_
                &_CmdResponse_ServerStatus_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    12;
+    14;
 
   void Swap(CmdResponse_ServerStatus* other);
   friend void swap(CmdResponse_ServerStatus& a, CmdResponse_ServerStatus& b) {
@@ -2369,7 +2673,7 @@ class CmdResponse : public ::google::protobuf::Message /* @@protoc_insertion_poi
                &_CmdResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    13;
+    15;
 
   void Swap(CmdResponse* other);
   friend void swap(CmdResponse& a, CmdResponse& b) {
@@ -2422,6 +2726,7 @@ class CmdResponse : public ::google::protobuf::Message /* @@protoc_insertion_poi
   typedef CmdResponse_RequestVoteResponse RequestVoteResponse;
   typedef CmdResponse_AppendEntriesResponse AppendEntriesResponse;
   typedef CmdResponse_KvResponse KvResponse;
+  typedef CmdResponse_McachedResponse McachedResponse;
   typedef CmdResponse_ServerStatus ServerStatus;
 
   // accessors -------------------------------------------------------
@@ -2501,6 +2806,18 @@ class CmdResponse : public ::google::protobuf::Message /* @@protoc_insertion_poi
   ::floyd::Membership* mutable_all_servers();
   void set_allocated_all_servers(::floyd::Membership* all_servers);
 
+  // optional .floyd.CmdResponse.McachedResponse mcached_response = 9;
+  bool has_mcached_response() const;
+  void clear_mcached_response();
+  static const int kMcachedResponseFieldNumber = 9;
+  private:
+  const ::floyd::CmdResponse_McachedResponse& _internal_mcached_response() const;
+  public:
+  const ::floyd::CmdResponse_McachedResponse& mcached_response() const;
+  ::floyd::CmdResponse_McachedResponse* release_mcached_response();
+  ::floyd::CmdResponse_McachedResponse* mutable_mcached_response();
+  void set_allocated_mcached_response(::floyd::CmdResponse_McachedResponse* mcached_response);
+
   // required .floyd.Type type = 1;
   bool has_type() const;
   void clear_type();
@@ -2533,6 +2850,8 @@ class CmdResponse : public ::google::protobuf::Message /* @@protoc_insertion_poi
   void clear_has_server_status();
   void set_has_all_servers();
   void clear_has_all_servers();
+  void set_has_mcached_response();
+  void clear_has_mcached_response();
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::internal::HasBits<1> _has_bits_;
@@ -2543,6 +2862,7 @@ class CmdResponse : public ::google::protobuf::Message /* @@protoc_insertion_poi
   ::floyd::CmdResponse_KvResponse* kv_response_;
   ::floyd::CmdResponse_ServerStatus* server_status_;
   ::floyd::Membership* all_servers_;
+  ::floyd::CmdResponse_McachedResponse* mcached_response_;
   int type_;
   int code_;
   friend struct ::protobuf_floyd_2eproto::TableStruct;
@@ -2591,7 +2911,7 @@ class Lock : public ::google::protobuf::Message /* @@protoc_insertion_point(clas
                &_Lock_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    14;
+    16;
 
   void Swap(Lock* other);
   friend void swap(Lock& a, Lock& b) {
@@ -2726,7 +3046,7 @@ class Membership : public ::google::protobuf::Message /* @@protoc_insertion_poin
                &_Membership_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    15;
+    17;
 
   void Swap(Membership* other);
   friend void swap(Membership& a, Membership& b) {
@@ -3155,6 +3475,75 @@ inline void Entry::set_allocated_server(::std::string* server) {
   }
   server_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), server);
   // @@protoc_insertion_point(field_set_allocated:floyd.Entry.server)
+}
+
+// repeated bytes args = 8;
+inline int Entry::args_size() const {
+  return args_.size();
+}
+inline void Entry::clear_args() {
+  args_.Clear();
+}
+inline const ::std::string& Entry::args(int index) const {
+  // @@protoc_insertion_point(field_get:floyd.Entry.args)
+  return args_.Get(index);
+}
+inline ::std::string* Entry::mutable_args(int index) {
+  // @@protoc_insertion_point(field_mutable:floyd.Entry.args)
+  return args_.Mutable(index);
+}
+inline void Entry::set_args(int index, const ::std::string& value) {
+  // @@protoc_insertion_point(field_set:floyd.Entry.args)
+  args_.Mutable(index)->assign(value);
+}
+#if LANG_CXX11
+inline void Entry::set_args(int index, ::std::string&& value) {
+  // @@protoc_insertion_point(field_set:floyd.Entry.args)
+  args_.Mutable(index)->assign(std::move(value));
+}
+#endif
+inline void Entry::set_args(int index, const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  args_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:floyd.Entry.args)
+}
+inline void Entry::set_args(int index, const void* value, size_t size) {
+  args_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:floyd.Entry.args)
+}
+inline ::std::string* Entry::add_args() {
+  // @@protoc_insertion_point(field_add_mutable:floyd.Entry.args)
+  return args_.Add();
+}
+inline void Entry::add_args(const ::std::string& value) {
+  args_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:floyd.Entry.args)
+}
+#if LANG_CXX11
+inline void Entry::add_args(::std::string&& value) {
+  args_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:floyd.Entry.args)
+}
+#endif
+inline void Entry::add_args(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  args_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:floyd.Entry.args)
+}
+inline void Entry::add_args(const void* value, size_t size) {
+  args_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:floyd.Entry.args)
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+Entry::args() const {
+  // @@protoc_insertion_point(field_list:floyd.Entry.args)
+  return args_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+Entry::mutable_args() {
+  // @@protoc_insertion_point(field_mutable_list:floyd.Entry.args)
+  return &args_;
 }
 
 // -------------------------------------------------------------------
@@ -4123,17 +4512,90 @@ inline void CmdRequest_ServerStatus::set_port(::google::protobuf::int32 value) {
 
 // -------------------------------------------------------------------
 
+// CmdRequest_McachedRequest
+
+// repeated bytes args = 1;
+inline int CmdRequest_McachedRequest::args_size() const {
+  return args_.size();
+}
+inline void CmdRequest_McachedRequest::clear_args() {
+  args_.Clear();
+}
+inline const ::std::string& CmdRequest_McachedRequest::args(int index) const {
+  // @@protoc_insertion_point(field_get:floyd.CmdRequest.McachedRequest.args)
+  return args_.Get(index);
+}
+inline ::std::string* CmdRequest_McachedRequest::mutable_args(int index) {
+  // @@protoc_insertion_point(field_mutable:floyd.CmdRequest.McachedRequest.args)
+  return args_.Mutable(index);
+}
+inline void CmdRequest_McachedRequest::set_args(int index, const ::std::string& value) {
+  // @@protoc_insertion_point(field_set:floyd.CmdRequest.McachedRequest.args)
+  args_.Mutable(index)->assign(value);
+}
+#if LANG_CXX11
+inline void CmdRequest_McachedRequest::set_args(int index, ::std::string&& value) {
+  // @@protoc_insertion_point(field_set:floyd.CmdRequest.McachedRequest.args)
+  args_.Mutable(index)->assign(std::move(value));
+}
+#endif
+inline void CmdRequest_McachedRequest::set_args(int index, const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  args_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:floyd.CmdRequest.McachedRequest.args)
+}
+inline void CmdRequest_McachedRequest::set_args(int index, const void* value, size_t size) {
+  args_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:floyd.CmdRequest.McachedRequest.args)
+}
+inline ::std::string* CmdRequest_McachedRequest::add_args() {
+  // @@protoc_insertion_point(field_add_mutable:floyd.CmdRequest.McachedRequest.args)
+  return args_.Add();
+}
+inline void CmdRequest_McachedRequest::add_args(const ::std::string& value) {
+  args_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:floyd.CmdRequest.McachedRequest.args)
+}
+#if LANG_CXX11
+inline void CmdRequest_McachedRequest::add_args(::std::string&& value) {
+  args_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:floyd.CmdRequest.McachedRequest.args)
+}
+#endif
+inline void CmdRequest_McachedRequest::add_args(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  args_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:floyd.CmdRequest.McachedRequest.args)
+}
+inline void CmdRequest_McachedRequest::add_args(const void* value, size_t size) {
+  args_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:floyd.CmdRequest.McachedRequest.args)
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+CmdRequest_McachedRequest::args() const {
+  // @@protoc_insertion_point(field_list:floyd.CmdRequest.McachedRequest.args)
+  return args_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+CmdRequest_McachedRequest::mutable_args() {
+  // @@protoc_insertion_point(field_mutable_list:floyd.CmdRequest.McachedRequest.args)
+  return &args_;
+}
+
+// -------------------------------------------------------------------
+
 // CmdRequest
 
 // required .floyd.Type type = 1;
 inline bool CmdRequest::has_type() const {
-  return (_has_bits_[0] & 0x00000080u) != 0;
+  return (_has_bits_[0] & 0x00000100u) != 0;
 }
 inline void CmdRequest::set_has_type() {
-  _has_bits_[0] |= 0x00000080u;
+  _has_bits_[0] |= 0x00000100u;
 }
 inline void CmdRequest::clear_has_type() {
-  _has_bits_[0] &= ~0x00000080u;
+  _has_bits_[0] &= ~0x00000100u;
 }
 inline void CmdRequest::clear_type() {
   type_ = 0;
@@ -4382,6 +4844,64 @@ inline void CmdRequest::set_allocated_lock_request(::floyd::CmdRequest_LockReque
   // @@protoc_insertion_point(field_set_allocated:floyd.CmdRequest.lock_request)
 }
 
+// optional .floyd.CmdRequest.ServerStatus server_status = 6;
+inline bool CmdRequest::has_server_status() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+inline void CmdRequest::set_has_server_status() {
+  _has_bits_[0] |= 0x00000010u;
+}
+inline void CmdRequest::clear_has_server_status() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+inline void CmdRequest::clear_server_status() {
+  if (server_status_ != NULL) server_status_->Clear();
+  clear_has_server_status();
+}
+inline const ::floyd::CmdRequest_ServerStatus& CmdRequest::_internal_server_status() const {
+  return *server_status_;
+}
+inline const ::floyd::CmdRequest_ServerStatus& CmdRequest::server_status() const {
+  const ::floyd::CmdRequest_ServerStatus* p = server_status_;
+  // @@protoc_insertion_point(field_get:floyd.CmdRequest.server_status)
+  return p != NULL ? *p : *reinterpret_cast<const ::floyd::CmdRequest_ServerStatus*>(
+      &::floyd::_CmdRequest_ServerStatus_default_instance_);
+}
+inline ::floyd::CmdRequest_ServerStatus* CmdRequest::release_server_status() {
+  // @@protoc_insertion_point(field_release:floyd.CmdRequest.server_status)
+  clear_has_server_status();
+  ::floyd::CmdRequest_ServerStatus* temp = server_status_;
+  server_status_ = NULL;
+  return temp;
+}
+inline ::floyd::CmdRequest_ServerStatus* CmdRequest::mutable_server_status() {
+  set_has_server_status();
+  if (server_status_ == NULL) {
+    auto* p = CreateMaybeMessage<::floyd::CmdRequest_ServerStatus>(GetArenaNoVirtual());
+    server_status_ = p;
+  }
+  // @@protoc_insertion_point(field_mutable:floyd.CmdRequest.server_status)
+  return server_status_;
+}
+inline void CmdRequest::set_allocated_server_status(::floyd::CmdRequest_ServerStatus* server_status) {
+  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == NULL) {
+    delete server_status_;
+  }
+  if (server_status) {
+    ::google::protobuf::Arena* submessage_arena = NULL;
+    if (message_arena != submessage_arena) {
+      server_status = ::google::protobuf::internal::GetOwnedMessage(
+          message_arena, server_status, submessage_arena);
+    }
+    set_has_server_status();
+  } else {
+    clear_has_server_status();
+  }
+  server_status_ = server_status;
+  // @@protoc_insertion_point(field_set_allocated:floyd.CmdRequest.server_status)
+}
+
 // optional .floyd.CmdRequest.AddServerRequest add_server_request = 7;
 inline bool CmdRequest::has_add_server_request() const {
   return (_has_bits_[0] & 0x00000020u) != 0;
@@ -4498,62 +5018,62 @@ inline void CmdRequest::set_allocated_remove_server_request(::floyd::CmdRequest_
   // @@protoc_insertion_point(field_set_allocated:floyd.CmdRequest.remove_server_request)
 }
 
-// optional .floyd.CmdRequest.ServerStatus server_status = 6;
-inline bool CmdRequest::has_server_status() const {
-  return (_has_bits_[0] & 0x00000010u) != 0;
+// optional .floyd.CmdRequest.McachedRequest mcached_request = 9;
+inline bool CmdRequest::has_mcached_request() const {
+  return (_has_bits_[0] & 0x00000080u) != 0;
 }
-inline void CmdRequest::set_has_server_status() {
-  _has_bits_[0] |= 0x00000010u;
+inline void CmdRequest::set_has_mcached_request() {
+  _has_bits_[0] |= 0x00000080u;
 }
-inline void CmdRequest::clear_has_server_status() {
-  _has_bits_[0] &= ~0x00000010u;
+inline void CmdRequest::clear_has_mcached_request() {
+  _has_bits_[0] &= ~0x00000080u;
 }
-inline void CmdRequest::clear_server_status() {
-  if (server_status_ != NULL) server_status_->Clear();
-  clear_has_server_status();
+inline void CmdRequest::clear_mcached_request() {
+  if (mcached_request_ != NULL) mcached_request_->Clear();
+  clear_has_mcached_request();
 }
-inline const ::floyd::CmdRequest_ServerStatus& CmdRequest::_internal_server_status() const {
-  return *server_status_;
+inline const ::floyd::CmdRequest_McachedRequest& CmdRequest::_internal_mcached_request() const {
+  return *mcached_request_;
 }
-inline const ::floyd::CmdRequest_ServerStatus& CmdRequest::server_status() const {
-  const ::floyd::CmdRequest_ServerStatus* p = server_status_;
-  // @@protoc_insertion_point(field_get:floyd.CmdRequest.server_status)
-  return p != NULL ? *p : *reinterpret_cast<const ::floyd::CmdRequest_ServerStatus*>(
-      &::floyd::_CmdRequest_ServerStatus_default_instance_);
+inline const ::floyd::CmdRequest_McachedRequest& CmdRequest::mcached_request() const {
+  const ::floyd::CmdRequest_McachedRequest* p = mcached_request_;
+  // @@protoc_insertion_point(field_get:floyd.CmdRequest.mcached_request)
+  return p != NULL ? *p : *reinterpret_cast<const ::floyd::CmdRequest_McachedRequest*>(
+      &::floyd::_CmdRequest_McachedRequest_default_instance_);
 }
-inline ::floyd::CmdRequest_ServerStatus* CmdRequest::release_server_status() {
-  // @@protoc_insertion_point(field_release:floyd.CmdRequest.server_status)
-  clear_has_server_status();
-  ::floyd::CmdRequest_ServerStatus* temp = server_status_;
-  server_status_ = NULL;
+inline ::floyd::CmdRequest_McachedRequest* CmdRequest::release_mcached_request() {
+  // @@protoc_insertion_point(field_release:floyd.CmdRequest.mcached_request)
+  clear_has_mcached_request();
+  ::floyd::CmdRequest_McachedRequest* temp = mcached_request_;
+  mcached_request_ = NULL;
   return temp;
 }
-inline ::floyd::CmdRequest_ServerStatus* CmdRequest::mutable_server_status() {
-  set_has_server_status();
-  if (server_status_ == NULL) {
-    auto* p = CreateMaybeMessage<::floyd::CmdRequest_ServerStatus>(GetArenaNoVirtual());
-    server_status_ = p;
+inline ::floyd::CmdRequest_McachedRequest* CmdRequest::mutable_mcached_request() {
+  set_has_mcached_request();
+  if (mcached_request_ == NULL) {
+    auto* p = CreateMaybeMessage<::floyd::CmdRequest_McachedRequest>(GetArenaNoVirtual());
+    mcached_request_ = p;
   }
-  // @@protoc_insertion_point(field_mutable:floyd.CmdRequest.server_status)
-  return server_status_;
+  // @@protoc_insertion_point(field_mutable:floyd.CmdRequest.mcached_request)
+  return mcached_request_;
 }
-inline void CmdRequest::set_allocated_server_status(::floyd::CmdRequest_ServerStatus* server_status) {
+inline void CmdRequest::set_allocated_mcached_request(::floyd::CmdRequest_McachedRequest* mcached_request) {
   ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
   if (message_arena == NULL) {
-    delete server_status_;
+    delete mcached_request_;
   }
-  if (server_status) {
+  if (mcached_request) {
     ::google::protobuf::Arena* submessage_arena = NULL;
     if (message_arena != submessage_arena) {
-      server_status = ::google::protobuf::internal::GetOwnedMessage(
-          message_arena, server_status, submessage_arena);
+      mcached_request = ::google::protobuf::internal::GetOwnedMessage(
+          message_arena, mcached_request, submessage_arena);
     }
-    set_has_server_status();
+    set_has_mcached_request();
   } else {
-    clear_has_server_status();
+    clear_has_mcached_request();
   }
-  server_status_ = server_status;
-  // @@protoc_insertion_point(field_set_allocated:floyd.CmdRequest.server_status)
+  mcached_request_ = mcached_request;
+  // @@protoc_insertion_point(field_set_allocated:floyd.CmdRequest.mcached_request)
 }
 
 // -------------------------------------------------------------------
@@ -4752,6 +5272,76 @@ inline void CmdResponse_KvResponse::set_allocated_value(::std::string* value) {
   }
   value_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
   // @@protoc_insertion_point(field_set_allocated:floyd.CmdResponse.KvResponse.value)
+}
+
+// -------------------------------------------------------------------
+
+// CmdResponse_McachedResponse
+
+// optional bytes value = 1;
+inline bool CmdResponse_McachedResponse::has_value() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void CmdResponse_McachedResponse::set_has_value() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void CmdResponse_McachedResponse::clear_has_value() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void CmdResponse_McachedResponse::clear_value() {
+  value_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  clear_has_value();
+}
+inline const ::std::string& CmdResponse_McachedResponse::value() const {
+  // @@protoc_insertion_point(field_get:floyd.CmdResponse.McachedResponse.value)
+  return value_.GetNoArena();
+}
+inline void CmdResponse_McachedResponse::set_value(const ::std::string& value) {
+  set_has_value();
+  value_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:floyd.CmdResponse.McachedResponse.value)
+}
+#if LANG_CXX11
+inline void CmdResponse_McachedResponse::set_value(::std::string&& value) {
+  set_has_value();
+  value_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:floyd.CmdResponse.McachedResponse.value)
+}
+#endif
+inline void CmdResponse_McachedResponse::set_value(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  set_has_value();
+  value_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:floyd.CmdResponse.McachedResponse.value)
+}
+inline void CmdResponse_McachedResponse::set_value(const void* value, size_t size) {
+  set_has_value();
+  value_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:floyd.CmdResponse.McachedResponse.value)
+}
+inline ::std::string* CmdResponse_McachedResponse::mutable_value() {
+  set_has_value();
+  // @@protoc_insertion_point(field_mutable:floyd.CmdResponse.McachedResponse.value)
+  return value_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* CmdResponse_McachedResponse::release_value() {
+  // @@protoc_insertion_point(field_release:floyd.CmdResponse.McachedResponse.value)
+  if (!has_value()) {
+    return NULL;
+  }
+  clear_has_value();
+  return value_.ReleaseNonDefaultNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void CmdResponse_McachedResponse::set_allocated_value(::std::string* value) {
+  if (value != NULL) {
+    set_has_value();
+  } else {
+    clear_has_value();
+  }
+  value_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set_allocated:floyd.CmdResponse.McachedResponse.value)
 }
 
 // -------------------------------------------------------------------
@@ -5130,13 +5720,13 @@ inline void CmdResponse_ServerStatus::set_last_applied(::google::protobuf::uint6
 
 // required .floyd.Type type = 1;
 inline bool CmdResponse::has_type() const {
-  return (_has_bits_[0] & 0x00000040u) != 0;
+  return (_has_bits_[0] & 0x00000080u) != 0;
 }
 inline void CmdResponse::set_has_type() {
-  _has_bits_[0] |= 0x00000040u;
+  _has_bits_[0] |= 0x00000080u;
 }
 inline void CmdResponse::clear_has_type() {
-  _has_bits_[0] &= ~0x00000040u;
+  _has_bits_[0] &= ~0x00000080u;
 }
 inline void CmdResponse::clear_type() {
   type_ = 0;
@@ -5155,13 +5745,13 @@ inline void CmdResponse::set_type(::floyd::Type value) {
 
 // optional .floyd.StatusCode code = 2;
 inline bool CmdResponse::has_code() const {
-  return (_has_bits_[0] & 0x00000080u) != 0;
+  return (_has_bits_[0] & 0x00000100u) != 0;
 }
 inline void CmdResponse::set_has_code() {
-  _has_bits_[0] |= 0x00000080u;
+  _has_bits_[0] |= 0x00000100u;
 }
 inline void CmdResponse::clear_has_code() {
-  _has_bits_[0] &= ~0x00000080u;
+  _has_bits_[0] &= ~0x00000100u;
 }
 inline void CmdResponse::clear_code() {
   code_ = 0;
@@ -5534,6 +6124,64 @@ inline void CmdResponse::set_allocated_all_servers(::floyd::Membership* all_serv
   // @@protoc_insertion_point(field_set_allocated:floyd.CmdResponse.all_servers)
 }
 
+// optional .floyd.CmdResponse.McachedResponse mcached_response = 9;
+inline bool CmdResponse::has_mcached_response() const {
+  return (_has_bits_[0] & 0x00000040u) != 0;
+}
+inline void CmdResponse::set_has_mcached_response() {
+  _has_bits_[0] |= 0x00000040u;
+}
+inline void CmdResponse::clear_has_mcached_response() {
+  _has_bits_[0] &= ~0x00000040u;
+}
+inline void CmdResponse::clear_mcached_response() {
+  if (mcached_response_ != NULL) mcached_response_->Clear();
+  clear_has_mcached_response();
+}
+inline const ::floyd::CmdResponse_McachedResponse& CmdResponse::_internal_mcached_response() const {
+  return *mcached_response_;
+}
+inline const ::floyd::CmdResponse_McachedResponse& CmdResponse::mcached_response() const {
+  const ::floyd::CmdResponse_McachedResponse* p = mcached_response_;
+  // @@protoc_insertion_point(field_get:floyd.CmdResponse.mcached_response)
+  return p != NULL ? *p : *reinterpret_cast<const ::floyd::CmdResponse_McachedResponse*>(
+      &::floyd::_CmdResponse_McachedResponse_default_instance_);
+}
+inline ::floyd::CmdResponse_McachedResponse* CmdResponse::release_mcached_response() {
+  // @@protoc_insertion_point(field_release:floyd.CmdResponse.mcached_response)
+  clear_has_mcached_response();
+  ::floyd::CmdResponse_McachedResponse* temp = mcached_response_;
+  mcached_response_ = NULL;
+  return temp;
+}
+inline ::floyd::CmdResponse_McachedResponse* CmdResponse::mutable_mcached_response() {
+  set_has_mcached_response();
+  if (mcached_response_ == NULL) {
+    auto* p = CreateMaybeMessage<::floyd::CmdResponse_McachedResponse>(GetArenaNoVirtual());
+    mcached_response_ = p;
+  }
+  // @@protoc_insertion_point(field_mutable:floyd.CmdResponse.mcached_response)
+  return mcached_response_;
+}
+inline void CmdResponse::set_allocated_mcached_response(::floyd::CmdResponse_McachedResponse* mcached_response) {
+  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == NULL) {
+    delete mcached_response_;
+  }
+  if (mcached_response) {
+    ::google::protobuf::Arena* submessage_arena = NULL;
+    if (message_arena != submessage_arena) {
+      mcached_response = ::google::protobuf::internal::GetOwnedMessage(
+          message_arena, mcached_response, submessage_arena);
+    }
+    set_has_mcached_response();
+  } else {
+    clear_has_mcached_response();
+  }
+  mcached_response_ = mcached_response;
+  // @@protoc_insertion_point(field_set_allocated:floyd.CmdResponse.mcached_response)
+}
+
 // -------------------------------------------------------------------
 
 // Lock
@@ -5704,6 +6352,10 @@ Membership::mutable_nodes() {
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

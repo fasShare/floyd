@@ -42,6 +42,16 @@ int FloydWorkerConn::DealMessage() {
 
   // why we still need to deal with message that is not these type
   switch (request_.type()) {
+    case Type::kMcachedRead:
+      response_.set_type(Type::kMcachedRead);
+      response_.set_code(StatusCode::kError);
+      floyd_->DoCommand(request_, &response_);
+      break;
+    case Type::kMcachedWrite:
+      response_.set_type(Type::kMcachedWrite);
+      response_.set_code(StatusCode::kError);
+      floyd_->DoCommand(request_, &response_);
+      break;
     case Type::kWrite:
       response_.set_type(Type::kWrite);
       response_.set_code(StatusCode::kError);

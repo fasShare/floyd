@@ -9,11 +9,13 @@
 #include <string>
 #include <set>
 #include <utility>
+#include <memory>
 #include <map>
 
 #include "slash/include/slash_mutex.h"
 #include "slash/include/slash_status.h"
 #include "pink/include/bg_thread.h"
+#include "mcached/Mcached.h"
 
 #include "floyd/include/floyd.h"
 #include "floyd/include/floyd_options.h"
@@ -77,12 +79,16 @@ class FloydImpl : public Floyd {
   void AddNewPeer(const std::string& server);
   void RemoveOutPeer(const std::string& server);
 
+  virtual Status ExecMcached(const std::vector<std::string>& args, std::string& res) override;
+  virtual Status ApplyMcached(const std::vector<std::string>& args, std::string& res);
+  virtual Status ApplyMcached(const::google::protobuf::RepeatedPtrField<::std::string>& arg, std::string& res);
  private:
   // friend class Floyd;
   friend class FloydWorkerConn;
   friend class FloydWorkerHandle;
   friend class Peer;
 
+  std::shared_ptr<moxie::Mcached> cached_;
   rocksdb::DB* db_;
   // state machine db point
   // raft log

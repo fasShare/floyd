@@ -38,24 +38,29 @@ MyConn::~MyConn() {
 
 int MyConn::DealMessage() {
   slash::Status s;
-  std::string val;
-  // set command
   std::string res;
+  // set command
 
   if (argv_.size() == 3 && (argv_[0] == "set" || argv_[0] == "SET")) {
     int retries = 5;
     while (true) {
       retries--;
-      s = f->Write(argv_[1], argv_[2]);
+      //s = f->Write(argv_[1], argv_[2]);
+      s = f->ExecMcached(argv_, res);
+      std::cout << argv_[0] << " " << argv_[1] << " " << argv_[2] << std::endl;
       if (s.ok()) {
         res = "+OK\r\n";
+        std::cout << "ExecMcached ret ok!" << std::endl;
         break;
       } else if (retries > 0 &&
                  (s.ToString().find("no leader") != std::string::npos ||
                  s.ToString().find("Client sent error") != std::string::npos)) {
         sleep(1);
+        std::cout << "ExecMcached ret failed 1!" << std::endl;
+        break;
       } else {
         res = "-ERR write " + s.ToString() + " \r\n";
+        std::cout << "ExecMcached ret failed 2!" << std::endl;
         break;
       }
     }
@@ -65,20 +70,23 @@ int MyConn::DealMessage() {
     int retries = 5;
     while (true) {
       retries--;
-      s = f->Read(argv_[1], &val);
+      //s = f->Read(argv_[1], &val);
+      std::cout << "before ExecMcached!" << std::endl;
+      f->ExecMcached(argv_, res);
+      std::cout << "Afetr ExecMcached!" << std::endl;
       if (s.ok() || s.IsNotFound()) {
         if (s.IsNotFound()) {
-          val = "0";  // default value for jepsen
+          res = "0";  // default value for jepsen
         }
         memcpy(wbuf_ + wbuf_len_, "$", 1);
         wbuf_len_ += 1;
-        std::string len = std::to_string(val.length());
+        std::string len = std::to_string(res.length());
         memcpy(wbuf_ + wbuf_len_, len.data(), len.size());
         wbuf_len_ += len.size();
         memcpy(wbuf_ + wbuf_len_, "\r\n", 2);
         wbuf_len_ += 2;
-        memcpy(wbuf_ + wbuf_len_, val.data(), val.size());
-        wbuf_len_ += val.size();
+        memcpy(wbuf_ + wbuf_len_, res.data(), res.size());
+        wbuf_len_ += res.size();
         memcpy(wbuf_ + wbuf_len_, "\r\n", 2);
         wbuf_len_ += 2;
         break;

@@ -91,6 +91,22 @@ static void BuildGetAllServersRequest(CmdRequest* cmd) {
   cmd->set_type(Type::kGetAllServers);
 }
 
+static void BuildExecMcachedRequest(const std::vector<std::string>& args, CmdRequest* cmd) {
+  std::cout << "BuildExecMcachedRequest" << std::endl;
+  assert(args.size());
+  if (moxie::Mcached::IsReadOnly(args[0])) {
+    cmd->set_type(Type::kMcachedRead);
+  } else {
+    cmd->set_type(Type::kMcachedWrite);
+  }
+  
+  CmdRequest_McachedRequest* kmcached_request = cmd->mutable_mcached_request();
+  for (size_t index = 0; index < args.size(); ++index) {
+    std::string* item = kmcached_request->add_args();
+    *item = args[index];
+  }
+}
+
 static void BuildRequestVoteResponse(uint64_t term, bool granted,
                                      CmdResponse* response) {
   response->set_type(Type::kRequestVote);
@@ -111,6 +127,19 @@ static void BuildAppendEntriesResponse(bool succ, uint64_t term,
 
 static void BuildLogEntry(const CmdRequest& cmd, uint64_t current_term, Entry* entry) {
   entry->set_term(current_term);
+
+  // for mcached
+    
+  if (cmd.type() == Type::kMcachedRead) {
+    entry->set_optype(Entry_OpType_kMcachedRead);
+    entry->mutable_args()->CopyFrom(cmd.mcached_request().args());
+    return;
+  } else if (cmd.type() == Type::kMcachedWrite) {
+    entry->set_optype(Entry_OpType_kMcachedWrite);
+    entry->mutable_args()->CopyFrom(cmd.mcached_request().args());
+    return ;
+  } 
+
   entry->set_key(cmd.kv_request().key());
   entry->set_value(cmd.kv_request().value());
   if (cmd.type() == Type::kRead) {
@@ -148,7 +177,8 @@ static void BuildMembership(const std::vector<std::string>& opt_members,
 }
 
 FloydImpl::FloydImpl(const Options& options)
-  : db_(NULL),
+  : cached_(NULL),
+    db_(NULL),
     log_and_meta_(NULL),
     options_(options),
     info_log_(NULL) {
@@ -272,6 +302,8 @@ int FloydImpl::InitPeers() {
 }
 
 Status FloydImpl::Init() {
+  cached_ = std::make_shared<moxie::Mcached>();
+
   slash::CreatePath(options_.path);
   if (NewLogger(options_.path + "/LOG", &info_log_) != 0) {
     return Status::Corruption("Open LOG failed, ", strerror(errno));
@@ -537,7 +569,8 @@ bool FloydImpl::GetServerStatus(std::string* msg) {
   return true;
 }
 
-Status FloydImpl::DoCommand(const CmdRequest& request, CmdResponse *response) {
+Status FloydImpl::DoCommand(const CmdRequest& request, CmdResponse *response) { 
+  std::cout << "DoCommand" << std::endl;
   // Execute if is leader
   std::string leader_ip;
   int leader_port;
@@ -551,6 +584,7 @@ Status FloydImpl::DoCommand(const CmdRequest& request, CmdResponse *response) {
   } else if (leader_ip == "" || leader_port == 0) {
     return Status::Incomplete("no leader node!");
   }
+  std::cout << "Redirect to leader" << std::endl;
   // Redirect to leader
   return worker_client_pool_->SendAndRecv(
       slash::IpPortString(leader_ip, leader_port),
@@ -605,8 +639,55 @@ bool FloydImpl::DoGetServerStatus(CmdResponse_ServerStatus* res) {
   return true;
 }
 
+Status FloydImpl::ApplyMcached(const std::vector<::std::string>& args, std::string& res) {
+  if (cached_->ExecuteCommand(args, res) == 0) {
+    return Status::OK();
+  }
+  return Status::Corruption("ApplyMcached Error");
+}
+
+Status FloydImpl::ApplyMcached(const::google::protobuf::RepeatedPtrField<::std::string>& args, std::string& res) {
+  if (cached_->ExecuteCommand(args, res) == 0) {
+    return Status::OK();
+  }
+  return Status::Corruption("ApplyMcached Error");
+}
+
+Status FloydImpl::ExecMcached(const std::vector<std::string>& args, std::string& res) {
+  std::cout << "ExecMcached" << std::endl;
+  if (args.size() == 0) {
+    return Status::Corruption("ExecMcached args is Zero Error");
+  }
+  // The read operations of Mcached, needn't send to cluster
+  std::cout << "ExecMcached" << std::endl;
+  if (cached_->IsReadOnly(args[0])) {
+    if (cached_->ExecuteCommand(args, res) != 0) {
+      return Status::Corruption("ExecMcached Error");
+    }
+    std::cout << "ExecMcached read ok!" << std::endl;
+    return Status::OK();
+  }
+
+  std::cout << "ExecMcached:" << args[0] << std::endl;
+
+  CmdRequest cmd;
+  BuildExecMcachedRequest(args, &cmd);
+  CmdResponse response;
+  Status s = DoCommand(cmd, &response);
+  if (!s.ok()) {
+    return s;
+  } else {
+    res = response.mcached_response().value();
+  }
+  if (response.code() == StatusCode::kOk) {
+    return Status::OK();
+  }
+  return Status::Corruption("ExecMcached Error");
+}
+
 Status FloydImpl::ExecuteCommand(const CmdRequest& request,
                                  CmdResponse *response) {
+  std::cout << "ExecuteCommand" << std::endl;
   // Append entry local
   std::vector<const Entry*> entries;
   Entry entry;
@@ -643,6 +724,18 @@ Status FloydImpl::ExecuteCommand(const CmdRequest& request,
   rocksdb::Status rs;
   Lock lock;
   switch (request.type()) {
+    case Type::kMcachedRead:
+      if (cached_->ExecuteCommand(request.mcached_request().args(), value) == 0) {
+        response->set_code(StatusCode::kOk);
+        CmdResponse_McachedResponse *rres = response->mutable_mcached_response();
+        rres->set_value(value);
+      } else {
+        response->set_code(StatusCode::kError);
+      }
+      break;
+    case Type::kMcachedWrite:
+      response->set_code(StatusCode::kOk);
+      break;
     case Type::kWrite:
       response->set_code(StatusCode::kOk);
       break;

@@ -2,8 +2,8 @@ CLEAN_FILES = # deliberately empty, so we can append below.
 CC=cc
 CXX=g++
 LDFLAGS= -lpthread -lrt
-CFLAGS= -fno-builtin-memcmp -msse -msse4.2
-CXXFLAGS= -std=c++11 -static -fno-builtin-memcmp -msse -msse4.2 -I/opt/protobuf/include -L/opt/protobuf/lib
+CFLAGS= -g -fno-builtin-memcmp -msse -msse4.2
+CXXFLAGS= -g -std=c++11 -static -fno-builtin-memcmp -msse -msse4.2 -I/opt/protobuf/include -L/opt/protobuf/lib -I./third/
 PROFILING_FLAGS=-pg
 ARFLAGS = rs
 OPT=

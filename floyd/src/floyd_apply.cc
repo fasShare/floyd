@@ -102,6 +102,13 @@ rocksdb::Status FloydApply::Apply(const Entry& entry) {
   // the FloydApply::ApplyStateMachine need use the ret to judge
   // whether consume this successfully
   switch (entry.optype()) {
+    case Entry_OpType_kMcachedRead:
+      ret = rocksdb::Status::OK();
+      break;
+    case Entry_OpType_kMcachedWrite:
+      impl_->ApplyMcached(entry.args(), val);
+      LOGV(DEBUG_LEVEL, info_log_, "FloydApply::Apply mecached!");
+      break;
     case Entry_OpType_kWrite:
       ret = db_->Put(rocksdb::WriteOptions(), entry.key(), entry.value());
       LOGV(DEBUG_LEVEL, info_log_, "FloydApply::Apply %s, key(%s)",
